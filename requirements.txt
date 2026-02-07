@@ -1,3 +1,9 @@
 ﻿Flask==3.0.0
 groq==0.11.0
-gunicorn==21.2.0
+gunicorn==21.2.0@"
+{
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/index" }
+  ]
+}
+"@ | Out-File -FilePath "vercel.json" -Encoding UTF8 -Force
