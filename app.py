@@ -10,7 +10,7 @@ client = None
 if api_key:
     client = Groq(api_key=api_key)
 
-# HTML Template with fixed JavaScript
+# HTML Template
 HTML_TEMPLATE = '''<!DOCTYPE html>
 <html lang="id">
 <head>
@@ -337,8 +337,8 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
             currentStyle = style;
             document.getElementById('style').value = style;
             
-            // Update active button
-            document.querySelectorAll('.topic-btn').forEach(btn => {
+            const allButtons = document.querySelectorAll('.topic-btn');
+            allButtons.forEach(function(btn) {
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
@@ -355,13 +355,15 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
             const keywords = document.getElementById('keywords').value;
             const additional = document.getElementById('additional').value;
 
-            // Hide previous results and errors
-            document.querySelector('.result-container').classList.remove('show');
-            document.querySelector('.error-message').classList.remove('show');
-            
-            // Show loading
-            document.querySelector('.loading').classList.add('show');
-            document.querySelector('.generate-btn').disabled = true;
+            const resultContainer = document.querySelector('.result-container');
+            const errorMessage = document.querySelector('.error-message');
+            const loading = document.querySelector('.loading');
+            const generateBtn = document.querySelector('.generate-btn');
+
+            resultContainer.classList.remove('show');
+            errorMessage.classList.remove('show');
+            loading.classList.add('show');
+            generateBtn.disabled = true;
 
             try {
                 const response = await fetch('/generate', {
@@ -379,9 +381,8 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
 
                 const data = await response.json();
 
-                // Hide loading
-                document.querySelector('.loading').classList.remove('show');
-                document.querySelector('.generate-btn').disabled = false;
+                loading.classList.remove('show');
+                generateBtn.disabled = false;
 
                 if (data.error) {
                     showError(data.error);
@@ -389,8 +390,8 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
                     showResult(data.article);
                 }
             } catch (error) {
-                document.querySelector('.loading').classList.remove('show');
-                document.querySelector('.generate-btn').disabled = false;
+                loading.classList.remove('show');
+                generateBtn.disabled = false;
                 showError('Terjadi kesalahan: ' + error.message);
             }
         }
@@ -399,7 +400,6 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
             document.querySelector('.result-content').textContent = article;
             document.querySelector('.result-container').classList.add('show');
             
-            // Smooth scroll to result
             document.querySelector('.result-container').scrollIntoView({ 
                 behavior: 'smooth', 
                 block: 'nearest' 
@@ -414,11 +414,11 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
 
         function copyToClipboard() {
             const content = document.querySelector('.result-content').textContent;
-            navigator.clipboard.writeText(content).then(() => {
+            navigator.clipboard.writeText(content).then(function() {
                 const btn = document.querySelector('.copy-btn');
                 const originalText = btn.textContent;
                 btn.textContent = '✅ Copied!';
-                setTimeout(() => {
+                setTimeout(function() {
                     btn.textContent = originalText;
                 }, 2000);
             });
@@ -443,17 +443,14 @@ def generate_article():
         keywords = data.get('keywords', '')
         additional = data.get('additional', '')
 
-        # Build prompt
-        prompt = f"""Buatkan artikel dalam bahasa Indonesia tentang: {topic}
-
-Gaya penulisan: {style}
-"""
+        prompt = "Buatkan artikel dalam bahasa Indonesia tentang: " + topic + "\n\n"
+        prompt += "Gaya penulisan: " + style + "\n"
         
         if keywords:
-            prompt += f"Keywords yang harus dimasukkan: {keywords}\n"
+            prompt += "Keywords yang harus dimasukkan: " + keywords + "\n"
         
         if additional:
-            prompt += f"Instruksi tambahan: {additional}\n"
+            prompt += "Instruksi tambahan: " + additional + "\n"
 
         prompt += """
 Buatkan artikel yang:
@@ -466,7 +463,6 @@ Buatkan artikel yang:
 
 Format artikel dengan rapi dan mudah dibaca."""
 
-        # Call Groq API
         chat_completion = client.chat.completions.create(
             messages=[
                 {
@@ -488,8 +484,7 @@ Format artikel dengan rapi dan mudah dibaca."""
         return jsonify({'article': article})
 
     except Exception as e:
-        return jsonify({'error': f'Terjadi kesalahan: {str(e)}'}), 500
+        return jsonify({'error': 'Terjadi kesalahan: ' + str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True) 
- 
+    app.run(debug=True)
