@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import os
 from groq import Groq
 
+# Initialize Flask app
 app = Flask(__name__)
 
 # Initialize Groq client
@@ -10,7 +11,7 @@ client = None
 if api_key:
     client = Groq(api_key=api_key)
 
-# HTML Template
+# HTML Template (sama seperti sebelumnya)
 HTML_TEMPLATE = '''<!DOCTYPE html>
 <html lang="id">
 <head>
@@ -443,14 +444,14 @@ def generate_article():
         keywords = data.get('keywords', '')
         additional = data.get('additional', '')
 
-        prompt = "Buatkan artikel dalam bahasa Indonesia tentang: " + topic + "\n\n"
-        prompt += "Gaya penulisan: " + style + "\n"
+        prompt = f"Buatkan artikel dalam bahasa Indonesia tentang: {topic}\n\n"
+        prompt += f"Gaya penulisan: {style}\n"
         
         if keywords:
-            prompt += "Keywords yang harus dimasukkan: " + keywords + "\n"
+            prompt += f"Keywords yang harus dimasukkan: {keywords}\n"
         
         if additional:
-            prompt += "Instruksi tambahan: " + additional + "\n"
+            prompt += f"Instruksi tambahan: {additional}\n"
 
         prompt += """
 Buatkan artikel yang:
@@ -484,7 +485,7 @@ Format artikel dengan rapi dan mudah dibaca."""
         return jsonify({'article': article})
 
     except Exception as e:
-        return jsonify({'error': 'Terjadi kesalahan: ' + str(e)}), 500
+        return jsonify({'error': f'Terjadi kesalahan: {str(e)}'}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# Vercel needs the app object to be named 'app'
+# No if __name__ == '__main__' needed for Vercel
